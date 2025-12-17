@@ -1,4 +1,4 @@
-# Era Radio Filter
+# Retro Audio Processor
 
 A single-page HTML application that transforms audio files to sound like they're being played over vintage radios from different eras (1910s-1980s).
 

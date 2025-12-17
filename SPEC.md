@@ -1,4 +1,4 @@
-# PROJECT SPEC: Era Radio Filter Web App
+# PROJECT SPEC: Retro Audio Processor Web App
 
 Create a single-page HTML application that applies vintage radio effects to uploaded audio files, simulating different decades from the 1910s to 1980s.
 

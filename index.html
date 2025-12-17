@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Era Radio Filter</title>
+    <title>Retro Audio Processor</title>
     <style>
         :root {
             --bg-primary: #2d2418;
@@ -27,7 +27,7 @@
             background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px 20px;
         }
 
         .container {
@@ -37,8 +37,8 @@
 
         h1 {
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
             color: var(--accent);
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
@@ -46,7 +46,7 @@
         .subtitle {
             text-align: center;
             color: var(--text-secondary);
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             font-style: italic;
         }
 
@@ -54,24 +54,24 @@
             background: var(--bg-secondary);
             border: 2px solid var(--border);
             border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .panel-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--accent);
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         /* Upload Section */
         .upload-area {
             border: 3px dashed var(--border);
             border-radius: 10px;
-            padding: 40px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -88,13 +88,13 @@
         }
 
         .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
 
         .file-info {
-            margin-top: 15px;
-            padding: 10px;
+            margin-top: 10px;
+            padding: 8px;
             background: var(--bg-primary);
             border-radius: 5px;
             display: none;
@@ -137,7 +137,7 @@
 
         .era-description {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 10px;
             font-style: italic;
             color: var(--text-secondary);
             min-height: 20px;
@@ -147,34 +147,36 @@
         .controls-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
+            gap: 15px;
         }
 
         .control-group {
             background: var(--bg-tertiary);
-            padding: 20px;
+            padding: 12px;
             border-radius: 8px;
         }
 
         .control-label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .control-name {
             font-weight: bold;
+            font-size: 0.9rem;
         }
 
         .control-value {
             color: var(--accent);
             font-weight: bold;
+            font-size: 0.9rem;
         }
 
         input[type="range"] {
             width: 100%;
-            height: 8px;
-            border-radius: 4px;
+            height: 6px;
+            border-radius: 3px;
             background: var(--bg-primary);
             outline: none;
             -webkit-appearance: none;
@@ -182,8 +184,8 @@
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: var(--accent);
             cursor: pointer;
@@ -191,8 +193,8 @@
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: var(--accent);
             cursor: pointer;
@@ -209,7 +211,7 @@
         .playback-box {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            padding: 25px;
+            padding: 15px;
             border-radius: 12px;
             text-align: center;
             width: 100%;
@@ -219,10 +221,10 @@
         /* Waveform & Progress */
         .waveform-container {
             width: 100%;
-            height: 120px;
+            height: 100px;
             background: var(--bg-primary);
             border-radius: 8px;
-            margin: 20px 0;
+            margin: 10px 0;
             position: relative;
             cursor: pointer;
             overflow: hidden;
@@ -259,39 +261,39 @@
             justify-content: center;
             align-items: center;
             gap: 15px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .btn-icon {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 0;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .btn-play {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
+            width: 55px;
+            height: 55px;
+            font-size: 1.4rem;
         }
 
         .playback-label {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-weight: bold;
             color: var(--accent);
         }
 
         .btn {
-            padding: 12px 25px;
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.2s ease;
             margin: 5px;
         }
@@ -326,8 +328,8 @@
         }
 
         .format-select {
-            padding: 10px 15px;
-            font-size: 1rem;
+            padding: 8px 12px;
+            font-size: 0.9rem;
             border: 2px solid var(--border);
             border-radius: 8px;
             background: var(--bg-tertiary);
@@ -340,7 +342,7 @@
         .processing {
             display: none;
             text-align: center;
-            padding: 20px;
+            padding: 10px;
             color: var(--accent);
         }
 
@@ -350,8 +352,8 @@
 
         .spinner {
             display: inline-block;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
@@ -367,15 +369,15 @@
         /* Footer */
         .footer {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 20px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Era Radio Filter</h1>
+        <h1>Retro Audio Processor</h1>
         <p class="subtitle">Transform your audio to sound like it's from a different era</p>
 
         <!-- Upload Section -->
