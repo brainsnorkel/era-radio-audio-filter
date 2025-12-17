@@ -992,71 +992,47 @@
             const era = parseInt(currentEra);
             const sampleRate = ctx.sampleRate;
 
-            // Pre-generate crackle and pop events
-            const crackleEvents = [];
-            const popEvents = [];
-
-            // Generate crackle events
-            if (crackleAmount > 0) {
-                const baseCrackleChance = era < 1940 ? 0.001 : era < 1960 ? 0.0005 : 0.0002;
-                const crackleChance = baseCrackleChance * crackleAmount;
-                const expectedCrackles = length * crackleChance;
-
-                for (let i = 0; i < expectedCrackles * 1.5; i++) {
-                    const position = Math.floor(Math.random() * length);
-                    const burstLength = Math.floor(sampleRate * (0.001 + Math.random() * 0.01)); // 1-11ms
-                    if (position + burstLength < length) {
-                        crackleEvents.push({ start: position, length: burstLength });
-                    }
-                }
-            }
-
-            // Generate pop events
-            if (popAmount > 0) {
-                const basePopChance = era < 1950 ? 0.0003 : era < 1970 ? 0.0001 : 0.00005;
-                const popChance = basePopChance * popAmount;
-                const expectedPops = length * popChance;
-
-                for (let i = 0; i < expectedPops * 1.5; i++) {
-                    const position = Math.floor(Math.random() * length);
-                    const popLength = Math.floor(sampleRate * (0.005 + Math.random() * 0.02)); // 5-25ms
-                    if (position + popLength < length) {
-                        popEvents.push({ start: position, length: popLength });
-                    }
-                }
-            }
-
             for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
                 const data = buffer.getChannelData(channel);
 
-                for (let i = 0; i < length; i++) {
-                    let crackle = 0;
-                    let pop = 0;
+                // Apply crackle events
+                if (crackleAmount > 0) {
+                    const baseCrackleChance = era < 1940 ? 0.001 : era < 1960 ? 0.0005 : 0.0002;
+                    const crackleChance = baseCrackleChance * crackleAmount;
+                    const numCrackles = Math.floor(length * crackleChance);
 
-                    // Apply crackle events
-                    for (const event of crackleEvents) {
-                        if (i >= event.start && i < event.start + event.length) {
-                            const t = (i - event.start) / event.length;
-                            // Sharp attack, exponential decay
+                    for (let c = 0; c < numCrackles; c++) {
+                        const start = Math.floor(Math.random() * length);
+                        const burstLength = Math.floor(sampleRate * (0.001 + Math.random() * 0.01));
+                        const end = Math.min(length, start + burstLength);
+
+                        for (let i = start; i < end; i++) {
+                            const t = (i - start) / (end - start);
                             const amplitude = (1 - t) * (1 - t) * Math.exp(-t * 5);
                             const noise = (Math.random() * 2 - 1) * 0.8;
-                            crackle += noise * amplitude * crackleAmount;
+                            data[i] += noise * amplitude * crackleAmount;
                         }
                     }
+                }
 
-                    // Apply pop events
-                    for (const event of popEvents) {
-                        if (i >= event.start && i < event.start + event.length) {
-                            const t = (i - event.start) / event.length;
-                            // Quick attack, slower decay
+                // Apply pop events
+                if (popAmount > 0) {
+                    const basePopChance = era < 1950 ? 0.0003 : era < 1970 ? 0.0001 : 0.00005;
+                    const popChance = basePopChance * popAmount;
+                    const numPops = Math.floor(length * popChance);
+
+                    for (let p = 0; p < numPops; p++) {
+                        const start = Math.floor(Math.random() * length);
+                        const popLength = Math.floor(sampleRate * (0.005 + Math.random() * 0.02));
+                        const end = Math.min(length, start + popLength);
+
+                        for (let i = start; i < end; i++) {
+                            const t = (i - start) / (end - start);
                             const amplitude = Math.exp(-t * 3) * (1 - t * 0.5);
-                            // Low frequency content (simulated with filtered noise)
                             const lowFreqNoise = (Math.random() * 2 - 1) * 0.6;
-                            pop += lowFreqNoise * amplitude * popAmount;
+                            data[i] += lowFreqNoise * amplitude * popAmount;
                         }
                     }
-
-                    data[i] = crackle + pop;
                 }
             }
             return buffer;
