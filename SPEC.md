@@ -1,6 +1,6 @@
 # PROJECT SPEC: Era Radio Filter Web App
 
-Create a single-page HTML application that applies vintage radio effects to uploaded audio files, simulating different decades from the 1930s to 1970s.
+Create a single-page HTML application that applies vintage radio effects to uploaded audio files, simulating different decades from the 1910s to 1980s.
 
 ## Requirements
 
@@ -14,11 +14,14 @@ Provide selectable presets for different decades, each with characteristic audio
 
 | Era | Bandpass Range | Compression | Noise Level | Mono | Character |
 |-----|---------------|-------------|-------------|------|-----------|
+| **1910s** | 500-2500 Hz | Very Heavy | Very High (static/crackle) | Yes | Spark gap era, extremely primitive, barely intelligible |
+| **1920s** | 400-2800 Hz | Very Heavy | High (heavy static) | Yes | Crystal radio era, AM broadcast beginnings |
 | **1930s** | 300-3000 Hz | Heavy | High (crackle/hiss) | Yes | AM radio, lo-fi, scratchy |
 | **1940s** | 250-3500 Hz | Heavy | Medium-High | Yes | War-era radio, slightly clearer |
 | **1950s** | 200-5000 Hz | Medium-Heavy | Medium | Optional | Early rock & roll, jukeboxes |
 | **1960s** | 150-8000 Hz | Medium | Low-Medium | Optional | FM emergence, cleaner but warm |
 | **1970s** | 100-10000 Hz | Light-Medium | Low | No | Near hi-fi, slight warmth/saturation |
+| **1980s** | 80-12000 Hz | Light | Very Low | No | FM dominance, clean, modern warmth |
 
 ### Audio Processing (using Web Audio API)
 
@@ -48,7 +51,7 @@ Users should be able to fine-tune the following settings:
 ### User Interface
 
 - Simple, clean design
-- Era preset selector (dropdown or buttons for 1930s-1970s)
+- Era preset selector (dropdown or buttons for 1910s-1980s)
 - Upload button
 - Play/pause controls for both original and processed audio
 - Sliders for adjustable parameters (compression, hiss, filtering, mono blend)
@@ -81,10 +84,22 @@ Input → Mono Conversion → Bandpass Filter → Bit Crusher → Compressor →
 
 ## Preset Default Values
 
+### 1910s
+- Compression: 100%
+- Hiss: 90%
+- Filtering: 100% (500-2500 Hz)
+- Mono: 100%
+
+### 1920s
+- Compression: 95%
+- Hiss: 80%
+- Filtering: 95% (400-2800 Hz)
+- Mono: 100%
+
 ### 1930s
 - Compression: 90%
 - Hiss: 70%
-- Filtering: 100% (300-3000 Hz)
+- Filtering: 90% (300-3000 Hz)
 - Mono: 100%
 
 ### 1940s
@@ -109,4 +124,10 @@ Input → Mono Conversion → Bandpass Filter → Bit Crusher → Compressor →
 - Compression: 30%
 - Hiss: 10%
 - Filtering: 25% (100-10000 Hz)
+- Mono: 0%
+
+### 1980s
+- Compression: 20%
+- Hiss: 5%
+- Filtering: 15% (80-12000 Hz)
 - Mono: 0%
