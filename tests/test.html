@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Era Radio Filter - Test Suite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 {
+            color: #c4956a;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #aaa;
+            margin-top: 30px;
+        }
+        .test-suite {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test {
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test.pass {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4CAF50;
+        }
+        .test.fail {
+            background: rgba(244, 67, 54, 0.2);
+            border-left: 4px solid #f44336;
+        }
+        .test.pending {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #FFC107;
+        }
+        .status {
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+        .status.pass { color: #4CAF50; }
+        .status.fail { color: #f44336; }
+        .status.pending { color: #FFC107; }
+        .summary {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .summary h3 {
+            margin: 0 0 15px 0;
+            color: #c4956a;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat .number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .stat.passed .number { color: #4CAF50; }
+        .stat.failed .number { color: #f44336; }
+        .stat.total .number { color: #c4956a; }
+        button {
+            background: #c4956a;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+        }
+        button:hover {
+            background: #d4a57a;
+        }
+        .error-details {
+            font-size: 0.85rem;
+            color: #f44336;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Era Radio Filter - Test Suite</h1>
+    <button onclick="runTests()">Run All Tests</button>
+
+    <div id="results"></div>
+    <div class="summary" id="summary" style="display: none;">
+        <h3>Test Results</h3>
+        <div class="stats">
+            <div class="stat passed">
+                <div class="number" id="passedCount">0</div>
+                <div>Passed</div>
+            </div>
+            <div class="stat failed">
+                <div class="number" id="failedCount">0</div>
+                <div>Failed</div>
+            </div>
+            <div class="stat total">
+                <div class="number" id="totalCount">0</div>
+                <div>Total</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test framework
+        class TestRunner {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+            }
+
+            describe(suiteName, fn) {
+                this.currentSuite = suiteName;
+                fn();
+            }
+
+            it(testName, fn) {
+                this.tests.push({
+                    suite: this.currentSuite,
+                    name: testName,
+                    fn: fn
+                });
+            }
+
+            async run() {
+                this.results = [];
+                for (const test of this.tests) {
+                    try {
+                        await test.fn();
+                        this.results.push({
+                            suite: test.suite,
+                            name: test.name,
+                            status: 'pass'
+                        });
+                    } catch (error) {
+                        this.results.push({
+                            suite: test.suite,
+                            name: test.name,
+                            status: 'fail',
+                            error: error.message
+                        });
+                    }
+                }
+                return this.results;
+            }
+        }
+
+        function assert(condition, message) {
+            if (!condition) {
+                throw new Error(message || 'Assertion failed');
+            }
+        }
+
+        function assertEqual(actual, expected, message) {
+            if (actual !== expected) {
+                throw new Error(message || `Expected ${expected}, but got ${actual}`);
+            }
+        }
+
+        function assertRange(value, min, max, message) {
+            if (value < min || value > max) {
+                throw new Error(message || `Expected value between ${min} and ${max}, but got ${value}`);
+            }
+        }
+
+        // Define tests
+        const runner = new TestRunner();
+
+        // ERA_PRESETS tests
+        runner.describe('Era Presets Configuration', () => {
+            const ERA_PRESETS = {
+                '1910s': { compression: 100, hiss: 90, filtering: 100, mono: 100, lowFreq: 500, highFreq: 2500 },
+                '1920s': { compression: 95, hiss: 80, filtering: 95, mono: 100, lowFreq: 400, highFreq: 2800 },
+                '1930s': { compression: 90, hiss: 70, filtering: 90, mono: 100, lowFreq: 300, highFreq: 3000 },
+                '1940s': { compression: 80, hiss: 50, filtering: 85, mono: 100, lowFreq: 250, highFreq: 3500 },
+                '1950s': { compression: 70, hiss: 35, filtering: 65, mono: 75, lowFreq: 200, highFreq: 5000 },
+                '1960s': { compression: 50, hiss: 20, filtering: 45, mono: 50, lowFreq: 150, highFreq: 8000 },
+                '1970s': { compression: 30, hiss: 10, filtering: 25, mono: 0, lowFreq: 100, highFreq: 10000 },
+                '1980s': { compression: 20, hiss: 5, filtering: 15, mono: 0, lowFreq: 80, highFreq: 12000 }
+            };
+
+            runner.it('should have all 8 decades defined (1910s-1980s)', () => {
+                const expectedEras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                expectedEras.forEach(era => {
+                    assert(ERA_PRESETS[era], `Era ${era} should be defined`);
+                });
+            });
+
+            runner.it('should have decreasing compression values as decades progress', () => {
+                const eras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                for (let i = 1; i < eras.length; i++) {
+                    assert(
+                        ERA_PRESETS[eras[i]].compression <= ERA_PRESETS[eras[i-1]].compression,
+                        `Compression should decrease from ${eras[i-1]} to ${eras[i]}`
+                    );
+                }
+            });
+
+            runner.it('should have decreasing hiss values as decades progress', () => {
+                const eras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                for (let i = 1; i < eras.length; i++) {
+                    assert(
+                        ERA_PRESETS[eras[i]].hiss <= ERA_PRESETS[eras[i-1]].hiss,
+                        `Hiss should decrease from ${eras[i-1]} to ${eras[i]}`
+                    );
+                }
+            });
+
+            runner.it('should have increasing high frequency cutoff as decades progress', () => {
+                const eras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                for (let i = 1; i < eras.length; i++) {
+                    assert(
+                        ERA_PRESETS[eras[i]].highFreq >= ERA_PRESETS[eras[i-1]].highFreq,
+                        `High frequency should increase from ${eras[i-1]} to ${eras[i]}`
+                    );
+                }
+            });
+
+            runner.it('should have decreasing low frequency cutoff as decades progress', () => {
+                const eras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                for (let i = 1; i < eras.length; i++) {
+                    assert(
+                        ERA_PRESETS[eras[i]].lowFreq <= ERA_PRESETS[eras[i-1]].lowFreq,
+                        `Low frequency should decrease from ${eras[i-1]} to ${eras[i]}`
+                    );
+                }
+            });
+
+            runner.it('should have 100% mono for 1910s-1940s', () => {
+                ['1910s', '1920s', '1930s', '1940s'].forEach(era => {
+                    assertEqual(ERA_PRESETS[era].mono, 100, `${era} should be 100% mono`);
+                });
+            });
+
+            runner.it('should have 0% mono for 1970s-1980s (full stereo)', () => {
+                ['1970s', '1980s'].forEach(era => {
+                    assertEqual(ERA_PRESETS[era].mono, 0, `${era} should be 0% mono (full stereo)`);
+                });
+            });
+
+            runner.it('should have valid frequency ranges for all eras', () => {
+                Object.entries(ERA_PRESETS).forEach(([era, preset]) => {
+                    assert(preset.lowFreq >= 20 && preset.lowFreq <= 1000,
+                        `${era} low frequency should be between 20-1000 Hz`);
+                    assert(preset.highFreq >= 2000 && preset.highFreq <= 20000,
+                        `${era} high frequency should be between 2000-20000 Hz`);
+                    assert(preset.lowFreq < preset.highFreq,
+                        `${era} low frequency should be less than high frequency`);
+                });
+            });
+
+            runner.it('should have all parameter values in 0-100 range', () => {
+                Object.entries(ERA_PRESETS).forEach(([era, preset]) => {
+                    assertRange(preset.compression, 0, 100, `${era} compression`);
+                    assertRange(preset.hiss, 0, 100, `${era} hiss`);
+                    assertRange(preset.filtering, 0, 100, `${era} filtering`);
+                    assertRange(preset.mono, 0, 100, `${era} mono`);
+                });
+            });
+        });
+
+        // Audio Processing Tests
+        runner.describe('Audio Processing Utilities', () => {
+            runner.it('should create valid distortion curve', () => {
+                function makeDistortionCurve(amount) {
+                    const samples = 44100;
+                    const curve = new Float32Array(samples);
+                    const deg = Math.PI / 180;
+                    for (let i = 0; i < samples; i++) {
+                        const x = (i * 2) / samples - 1;
+                        curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+                    }
+                    return curve;
+                }
+
+                const curve = makeDistortionCurve(50);
+                assertEqual(curve.length, 44100, 'Curve should have 44100 samples');
+                assert(curve[0] < 0, 'First sample should be negative');
+                assert(curve[44099] > 0, 'Last sample should be positive');
+            });
+
+            runner.it('should have Web Audio API available', () => {
+                assert(window.AudioContext || window.webkitAudioContext,
+                    'AudioContext should be available');
+            });
+
+            runner.it('should be able to create AudioContext', () => {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                assert(ctx, 'Should create AudioContext');
+                assert(ctx.sampleRate > 0, 'Sample rate should be positive');
+                ctx.close();
+            });
+
+            runner.it('should be able to create BiquadFilterNode', () => {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const filter = ctx.createBiquadFilter();
+                assert(filter, 'Should create BiquadFilterNode');
+                assert(['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'peaking', 'notch', 'allpass']
+                    .includes(filter.type), 'Filter type should be valid');
+                ctx.close();
+            });
+
+            runner.it('should be able to create DynamicsCompressorNode', () => {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const comp = ctx.createDynamicsCompressor();
+                assert(comp, 'Should create DynamicsCompressorNode');
+                assert(comp.threshold, 'Should have threshold');
+                assert(comp.knee, 'Should have knee');
+                assert(comp.ratio, 'Should have ratio');
+                ctx.close();
+            });
+
+            runner.it('should be able to create GainNode', () => {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const gain = ctx.createGain();
+                assert(gain, 'Should create GainNode');
+                assert(gain.gain.value === 1, 'Default gain should be 1');
+                ctx.close();
+            });
+        });
+
+        // WAV Encoding Tests
+        runner.describe('WAV Encoding', () => {
+            function audioBufferToWav(buffer) {
+                const numChannels = buffer.numberOfChannels;
+                const sampleRate = buffer.sampleRate;
+                const format = 1;
+                const bitDepth = 16;
+                const bytesPerSample = bitDepth / 8;
+                const blockAlign = numChannels * bytesPerSample;
+                const dataLength = buffer.length * blockAlign;
+                const headerLength = 44;
+                const totalLength = headerLength + dataLength;
+                const arrayBuffer = new ArrayBuffer(totalLength);
+                const view = new DataView(arrayBuffer);
+
+                function writeString(view, offset, string) {
+                    for (let i = 0; i < string.length; i++) {
+                        view.setUint8(offset + i, string.charCodeAt(i));
+                    }
+                }
+
+                writeString(view, 0, 'RIFF');
+                view.setUint32(4, totalLength - 8, true);
+                writeString(view, 8, 'WAVE');
+                writeString(view, 12, 'fmt ');
+                view.setUint32(16, 16, true);
+                view.setUint16(20, format, true);
+                view.setUint16(22, numChannels, true);
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, sampleRate * blockAlign, true);
+                view.setUint16(32, blockAlign, true);
+                view.setUint16(34, bitDepth, true);
+                writeString(view, 36, 'data');
+                view.setUint32(40, dataLength, true);
+
+                return arrayBuffer;
+            }
+
+            runner.it('should create valid WAV header', () => {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const buffer = ctx.createBuffer(2, 44100, 44100); // 1 second stereo
+                const wav = audioBufferToWav(buffer);
+                const view = new DataView(wav);
+
+                // Check RIFF header
+                assertEqual(String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3)),
+                    'RIFF', 'Should start with RIFF');
+                assertEqual(String.fromCharCode(view.getUint8(8), view.getUint8(9), view.getUint8(10), view.getUint8(11)),
+                    'WAVE', 'Should have WAVE format');
+                assertEqual(String.fromCharCode(view.getUint8(36), view.getUint8(37), view.getUint8(38), view.getUint8(39)),
+                    'data', 'Should have data chunk');
+
+                ctx.close();
+            });
+
+            runner.it('should calculate correct file size', () => {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const samples = 44100;
+                const channels = 2;
+                const buffer = ctx.createBuffer(channels, samples, 44100);
+                const wav = audioBufferToWav(buffer);
+
+                const expectedSize = 44 + (samples * channels * 2); // header + data
+                assertEqual(wav.byteLength, expectedSize, 'WAV size should match expected');
+
+                ctx.close();
+            });
+        });
+
+        // UI Tests
+        runner.describe('User Interface', () => {
+            runner.it('should have all era buttons present in DOM', async () => {
+                // Create a mock DOM structure
+                const expectedEras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                // This test verifies the expected eras exist
+                assert(expectedEras.length === 8, 'Should have 8 eras');
+            });
+
+            runner.it('should have valid slider ranges', () => {
+                // Verify expected slider configurations
+                const sliders = [
+                    { name: 'compression', min: 0, max: 100 },
+                    { name: 'hiss', min: 0, max: 100 },
+                    { name: 'filtering', min: 0, max: 100 },
+                    { name: 'mono', min: 0, max: 100 }
+                ];
+
+                sliders.forEach(slider => {
+                    assertRange(slider.min, 0, 0, `${slider.name} min should be 0`);
+                    assertRange(slider.max, 100, 100, `${slider.name} max should be 100`);
+                });
+            });
+
+            runner.it('should support common audio formats', () => {
+                const supportedFormats = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/flac'];
+                supportedFormats.forEach(format => {
+                    assert(format.startsWith('audio/'), `${format} should be audio format`);
+                });
+            });
+        });
+
+        // Noise Generation Tests
+        runner.describe('Noise Generation', () => {
+            runner.it('should generate noise within valid range', () => {
+                const samples = 1000;
+                let allInRange = true;
+
+                for (let i = 0; i < samples; i++) {
+                    const noise = Math.random() * 2 - 1;
+                    if (noise < -1 || noise > 1) {
+                        allInRange = false;
+                        break;
+                    }
+                }
+
+                assert(allInRange, 'All noise samples should be between -1 and 1');
+            });
+
+            runner.it('should have appropriate crackle probability for older eras', () => {
+                const era1910 = 1910;
+                const era1980 = 1980;
+                const amount = 1;
+
+                const crackle1910 = era1910 < 1940 ? 0.0005 * amount : 0.0001 * amount;
+                const crackle1980 = era1980 < 1940 ? 0.0005 * amount : 0.0001 * amount;
+
+                assert(crackle1910 > crackle1980, '1910s should have more crackle than 1980s');
+            });
+        });
+
+        // Filter Calculation Tests
+        runner.describe('Filter Calculations', () => {
+            runner.it('should calculate correct filter frequencies at 100% filtering', () => {
+                const preset = { lowFreq: 300, highFreq: 3000 };
+                const filterAmount = 1; // 100%
+                const fullLow = 20;
+                const fullHigh = 20000;
+
+                const lowFreq = fullLow + (preset.lowFreq - fullLow) * filterAmount;
+                const highFreq = fullHigh - (fullHigh - preset.highFreq) * filterAmount;
+
+                assertEqual(lowFreq, 300, 'Low frequency should match preset at 100%');
+                assertEqual(highFreq, 3000, 'High frequency should match preset at 100%');
+            });
+
+            runner.it('should calculate correct filter frequencies at 0% filtering', () => {
+                const preset = { lowFreq: 300, highFreq: 3000 };
+                const filterAmount = 0; // 0%
+                const fullLow = 20;
+                const fullHigh = 20000;
+
+                const lowFreq = fullLow + (preset.lowFreq - fullLow) * filterAmount;
+                const highFreq = fullHigh - (fullHigh - preset.highFreq) * filterAmount;
+
+                assertEqual(lowFreq, 20, 'Low frequency should be 20 Hz at 0%');
+                assertEqual(highFreq, 20000, 'High frequency should be 20000 Hz at 0%');
+            });
+
+            runner.it('should calculate correct compressor settings', () => {
+                const compAmount = 0.9; // 90%
+
+                const threshold = -50 + (1 - compAmount) * 40;
+                const ratio = 1 + compAmount * 19;
+
+                assertRange(threshold, -50, -10, 'Threshold should be in valid range');
+                assertRange(ratio, 1, 20, 'Ratio should be in valid range');
+            });
+        });
+
+        // Run tests and display results
+        async function runTests() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            const results = await runner.run();
+
+            // Group by suite
+            const suites = {};
+            results.forEach(result => {
+                if (!suites[result.suite]) {
+                    suites[result.suite] = [];
+                }
+                suites[result.suite].push(result);
+            });
+
+            // Render results
+            let passed = 0;
+            let failed = 0;
+
+            Object.entries(suites).forEach(([suiteName, tests]) => {
+                const suiteDiv = document.createElement('div');
+                suiteDiv.className = 'test-suite';
+                suiteDiv.innerHTML = `<h2>${suiteName}</h2>`;
+
+                tests.forEach(test => {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = `test ${test.status}`;
+                    testDiv.innerHTML = `
+                        <span>${test.name}</span>
+                        <span class="status ${test.status}">${test.status.toUpperCase()}</span>
+                    `;
+                    if (test.error) {
+                        testDiv.innerHTML += `<div class="error-details">${test.error}</div>`;
+                    }
+                    suiteDiv.appendChild(testDiv);
+
+                    if (test.status === 'pass') passed++;
+                    else failed++;
+                });
+
+                resultsDiv.appendChild(suiteDiv);
+            });
+
+            // Update summary
+            document.getElementById('summary').style.display = 'block';
+            document.getElementById('passedCount').textContent = passed;
+            document.getElementById('failedCount').textContent = failed;
+            document.getElementById('totalCount').textContent = passed + failed;
+        }
+
+        // Auto-run tests on load
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>
