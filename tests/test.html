@@ -195,14 +195,14 @@
         // ERA_PRESETS tests
         runner.describe('Era Presets Configuration', () => {
             const ERA_PRESETS = {
-                '1910s': { compression: 100, hiss: 90, filtering: 100, mono: 100, lowFreq: 500, highFreq: 2500 },
-                '1920s': { compression: 95, hiss: 80, filtering: 95, mono: 100, lowFreq: 400, highFreq: 2800 },
-                '1930s': { compression: 90, hiss: 70, filtering: 90, mono: 100, lowFreq: 300, highFreq: 3000 },
-                '1940s': { compression: 80, hiss: 50, filtering: 85, mono: 100, lowFreq: 250, highFreq: 3500 },
-                '1950s': { compression: 70, hiss: 35, filtering: 65, mono: 75, lowFreq: 200, highFreq: 5000 },
-                '1960s': { compression: 50, hiss: 20, filtering: 45, mono: 50, lowFreq: 150, highFreq: 8000 },
-                '1970s': { compression: 30, hiss: 10, filtering: 25, mono: 0, lowFreq: 100, highFreq: 10000 },
-                '1980s': { compression: 20, hiss: 5, filtering: 15, mono: 0, lowFreq: 80, highFreq: 12000 }
+                '1910s': { compression: 100, hiss: 90, filtering: 100, mono: 100, crackle: 95, pop: 80, lowFreq: 500, highFreq: 2500 },
+                '1920s': { compression: 95, hiss: 80, filtering: 95, mono: 100, crackle: 85, pop: 70, lowFreq: 400, highFreq: 2800 },
+                '1930s': { compression: 90, hiss: 70, filtering: 90, mono: 100, crackle: 75, pop: 60, lowFreq: 300, highFreq: 3000 },
+                '1940s': { compression: 80, hiss: 50, filtering: 85, mono: 100, crackle: 60, pop: 50, lowFreq: 250, highFreq: 3500 },
+                '1950s': { compression: 70, hiss: 35, filtering: 65, mono: 75, crackle: 40, pop: 25, lowFreq: 200, highFreq: 5000 },
+                '1960s': { compression: 50, hiss: 20, filtering: 45, mono: 50, crackle: 25, pop: 15, lowFreq: 150, highFreq: 8000 },
+                '1970s': { compression: 30, hiss: 10, filtering: 25, mono: 0, crackle: 10, pop: 5, lowFreq: 100, highFreq: 10000 },
+                '1980s': { compression: 20, hiss: 5, filtering: 15, mono: 0, crackle: 5, pop: 2, lowFreq: 80, highFreq: 12000 }
             };
 
             runner.it('should have all 8 decades defined (1910s-1980s)', () => {
@@ -228,6 +228,26 @@
                     assert(
                         ERA_PRESETS[eras[i]].hiss <= ERA_PRESETS[eras[i-1]].hiss,
                         `Hiss should decrease from ${eras[i-1]} to ${eras[i]}`
+                    );
+                }
+            });
+
+            runner.it('should have decreasing crackle values as decades progress', () => {
+                const eras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                for (let i = 1; i < eras.length; i++) {
+                    assert(
+                        ERA_PRESETS[eras[i]].crackle <= ERA_PRESETS[eras[i-1]].crackle,
+                        `Crackle should decrease from ${eras[i-1]} to ${eras[i]}`
+                    );
+                }
+            });
+
+            runner.it('should have decreasing pop values as decades progress', () => {
+                const eras = ['1910s', '1920s', '1930s', '1940s', '1950s', '1960s', '1970s', '1980s'];
+                for (let i = 1; i < eras.length; i++) {
+                    assert(
+                        ERA_PRESETS[eras[i]].pop <= ERA_PRESETS[eras[i-1]].pop,
+                        `Pop should decrease from ${eras[i-1]} to ${eras[i]}`
                     );
                 }
             });
@@ -281,6 +301,8 @@
                     assertRange(preset.hiss, 0, 100, `${era} hiss`);
                     assertRange(preset.filtering, 0, 100, `${era} filtering`);
                     assertRange(preset.mono, 0, 100, `${era} mono`);
+                    assertRange(preset.crackle, 0, 100, `${era} crackle`);
+                    assertRange(preset.pop, 0, 100, `${era} pop`);
                 });
             });
         });

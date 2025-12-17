@@ -48,19 +48,31 @@ Users should be able to fine-tune the following settings:
 4. **Mono** - Toggle or blend stereo to mono conversion
    - Options: Stereo / Mono / Blend slider
 
+5. **Radio Crackle** - Control the frequency of radio static bursts
+   - Range: 0% to 100%
+
+6. **Record Pop** - Control the frequency of vinyl record style pops
+   - Range: 0% to 100%
+
 ### User Interface
 
 - Simple, clean design
 - Era preset selector (dropdown or buttons for 1910s-1980s)
 - Upload button
-- Play/pause controls for both original and processed audio
-- Sliders for adjustable parameters (compression, hiss, filtering, mono blend)
+- **Playback Widget**:
+  - Visual waveform of processed audio
+  - Play/Pause toggle
+  - Skip forward 10s / Skip backward 10s
+  - Interactive seek (click on waveform)
+  - Current time and total duration display
+- Sliders for adjustable parameters (compression, hiss, filtering, mono blend, crackle, pop)
 - Visual feedback showing current settings
 - Download button for processed audio
 
 ### Output
 
 - Export as WAV or MP3
+- MP3 encoding support via lamejs (CDN-loaded)
 - Maintain reasonable quality while achieving the vintage effect
 
 ## Technical Approach

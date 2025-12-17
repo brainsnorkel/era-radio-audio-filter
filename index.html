@@ -201,22 +201,82 @@
 
         /* Playback Controls */
         .playback-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            justify-content: center;
             gap: 20px;
         }
 
-        @media (max-width: 600px) {
-            .playback-section {
-                grid-template-columns: 1fr;
-            }
+        .playback-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            width: 100%;
+            max-width: 800px;
         }
 
-        .playback-box {
-            background: var(--bg-tertiary);
-            padding: 20px;
+        /* Waveform & Progress */
+        .waveform-container {
+            width: 100%;
+            height: 120px;
+            background: var(--bg-primary);
             border-radius: 8px;
-            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        #waveformCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: rgba(196, 149, 106, 0.3);
+            border-right: 2px solid var(--accent);
+            pointer-events: none;
+            width: 0%;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .playback-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            font-size: 1.2rem;
+        }
+
+        .btn-play {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
         }
 
         .playback-label {
@@ -382,6 +442,20 @@
                     </div>
                     <input type="range" id="mono" min="0" max="100" value="75">
                 </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span class="control-name">Radio Crackle</span>
+                        <span class="control-value" id="crackleValue">40%</span>
+                    </div>
+                    <input type="range" id="crackle" min="0" max="100" value="40">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span class="control-name">Record Pop</span>
+                        <span class="control-value" id="popValue">25%</span>
+                    </div>
+                    <input type="range" id="pop" min="0" max="100" value="25">
+                </div>
             </div>
         </div>
 
@@ -390,12 +464,23 @@
             <h2 class="panel-title">Playback</h2>
             <div class="playback-section">
                 <div class="playback-box">
-                    <p class="playback-label">Original Audio</p>
-                    <button class="btn btn-secondary" id="playOriginal" disabled>Play Original</button>
-                </div>
-                <div class="playback-box">
                     <p class="playback-label">Processed Audio</p>
-                    <button class="btn btn-primary" id="playProcessed" disabled>Play Processed</button>
+                    
+                    <div class="waveform-container" id="waveformContainer">
+                        <canvas id="waveformCanvas"></canvas>
+                        <div class="progress-overlay" id="progressOverlay"></div>
+                    </div>
+                    
+                    <div class="time-display">
+                        <span id="currentTime">00:00</span>
+                        <span id="duration">00:00</span>
+                    </div>
+                    
+                    <div class="playback-controls">
+                        <button class="btn btn-secondary btn-icon" id="skipBack" title="Back 10s" disabled>&#8630;</button>
+                        <button class="btn btn-primary btn-icon btn-play" id="playProcessed" title="Play/Pause" disabled>&#9658;</button>
+                        <button class="btn btn-secondary btn-icon" id="skipForward" title="Forward 10s" disabled>&#8631;</button>
+                    </div>
                 </div>
             </div>
             <div class="processing" id="processing">
@@ -427,6 +512,8 @@
                 hiss: 90,
                 filtering: 100,
                 mono: 100,
+                crackle: 95,
+                pop: 80,
                 lowFreq: 500,
                 highFreq: 2500,
                 description: 'Spark gap era, extremely primitive, barely intelligible'
@@ -436,6 +523,8 @@
                 hiss: 80,
                 filtering: 95,
                 mono: 100,
+                crackle: 85,
+                pop: 70,
                 lowFreq: 400,
                 highFreq: 2800,
                 description: 'Crystal radio era, AM broadcast beginnings'
@@ -445,6 +534,8 @@
                 hiss: 70,
                 filtering: 90,
                 mono: 100,
+                crackle: 75,
+                pop: 60,
                 lowFreq: 300,
                 highFreq: 3000,
                 description: 'AM radio, lo-fi, scratchy'
@@ -454,6 +545,8 @@
                 hiss: 50,
                 filtering: 85,
                 mono: 100,
+                crackle: 60,
+                pop: 50,
                 lowFreq: 250,
                 highFreq: 3500,
                 description: 'War-era radio, slightly clearer'
@@ -463,6 +556,8 @@
                 hiss: 35,
                 filtering: 65,
                 mono: 75,
+                crackle: 40,
+                pop: 25,
                 lowFreq: 200,
                 highFreq: 5000,
                 description: 'Early rock & roll, jukeboxes'
@@ -472,6 +567,8 @@
                 hiss: 20,
                 filtering: 45,
                 mono: 50,
+                crackle: 25,
+                pop: 15,
                 lowFreq: 150,
                 highFreq: 8000,
                 description: 'FM emergence, cleaner but warm'
@@ -481,6 +578,8 @@
                 hiss: 10,
                 filtering: 25,
                 mono: 0,
+                crackle: 10,
+                pop: 5,
                 lowFreq: 100,
                 highFreq: 10000,
                 description: 'Near hi-fi, slight warmth/saturation'
@@ -490,6 +589,8 @@
                 hiss: 5,
                 filtering: 15,
                 mono: 0,
+                crackle: 5,
+                pop: 2,
                 lowFreq: 80,
                 highFreq: 12000,
                 description: 'FM dominance, clean, modern warmth'
@@ -502,7 +603,13 @@
         let processedBuffer = null;
         let currentSource = null;
         let isPlaying = false;
+        let currentPlayingType = null; // 'original' or 'processed'
         let currentEra = '1950s';
+        
+        // New Playback State
+        let playStartTime = 0;
+        let pausedAt = 0;
+        let playbackInterval = null;
 
         // DOM Elements
         const uploadArea = document.getElementById('uploadArea');
@@ -515,15 +622,25 @@
         const hissSlider = document.getElementById('hiss');
         const filteringSlider = document.getElementById('filtering');
         const monoSlider = document.getElementById('mono');
+        const crackleSlider = document.getElementById('crackle');
+        const popSlider = document.getElementById('pop');
         const compressionValue = document.getElementById('compressionValue');
         const hissValue = document.getElementById('hissValue');
         const filteringValue = document.getElementById('filteringValue');
         const monoValue = document.getElementById('monoValue');
-        const playOriginalBtn = document.getElementById('playOriginal');
+        const crackleValue = document.getElementById('crackleValue');
+        const popValue = document.getElementById('popValue');
         const playProcessedBtn = document.getElementById('playProcessed');
+        const skipBackBtn = document.getElementById('skipBack');
+        const skipForwardBtn = document.getElementById('skipForward');
         const downloadBtn = document.getElementById('downloadBtn');
         const formatSelect = document.getElementById('formatSelect');
         const processing = document.getElementById('processing');
+        const waveformCanvas = document.getElementById('waveformCanvas');
+        const progressOverlay = document.getElementById('progressOverlay');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const durationDisplay = document.getElementById('duration');
+        const waveformContainer = document.getElementById('waveformContainer');
 
         // Initialize audio context
         function initAudioContext() {
@@ -564,11 +681,15 @@
             initAudioContext();
             fileName.textContent = file.name;
             fileInfo.classList.add('visible');
+            
+            // Reset playback state for new file
+            stopPlayback();
+            pausedAt = 0;
+            updateProgress();
 
             const arrayBuffer = await file.arrayBuffer();
             originalBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-            playOriginalBtn.disabled = false;
             await processAudio();
         }
 
@@ -588,6 +709,8 @@
             hissSlider.value = preset.hiss;
             filteringSlider.value = preset.filtering;
             monoSlider.value = preset.mono;
+            crackleSlider.value = preset.crackle;
+            popSlider.value = preset.pop;
             updateSliderDisplays();
             eraDescription.textContent = preset.description;
 
@@ -601,10 +724,12 @@
             hissValue.textContent = hissSlider.value + '%';
             filteringValue.textContent = filteringSlider.value + '%';
             monoValue.textContent = monoSlider.value + '%';
+            crackleValue.textContent = crackleSlider.value + '%';
+            popValue.textContent = popSlider.value + '%';
         }
 
         // Slider event listeners
-        [compressionSlider, hissSlider, filteringSlider, monoSlider].forEach(slider => {
+        [compressionSlider, hissSlider, filteringSlider, monoSlider, crackleSlider, popSlider].forEach(slider => {
             slider.addEventListener('input', () => {
                 updateSliderDisplays();
             });
@@ -619,6 +744,8 @@
         async function processAudio() {
             if (!originalBuffer) return;
 
+            const wasPlayingProcessed = (currentPlayingType === 'processed');
+
             processing.classList.add('visible');
             playProcessedBtn.disabled = true;
             downloadBtn.disabled = true;
@@ -632,6 +759,8 @@
                 const monoAmount = monoSlider.value / 100;
                 const hissAmount = hissSlider.value / 100;
                 const compAmount = compressionSlider.value / 100;
+                const crackleAmount = crackleSlider.value / 100;
+                const popAmount = popSlider.value / 100;
 
                 // Calculate filter frequencies based on preset and slider
                 const fullLow = 20;
@@ -746,18 +875,82 @@
                     noiseSource.start();
                 }
 
+                // Add crackle and pop effects
+                if (crackleAmount > 0 || popAmount > 0) {
+                    const cracklePopBuffer = createCracklePopBuffer(offlineCtx, originalBuffer.length, crackleAmount, popAmount, preset);
+                    const cracklePopSource = offlineCtx.createBufferSource();
+                    cracklePopSource.buffer = cracklePopBuffer;
+
+                    const cracklePopGain = offlineCtx.createGain();
+                    cracklePopGain.gain.value = 0.3; // Overall level control
+
+                    cracklePopSource.connect(cracklePopGain);
+                    cracklePopGain.connect(mixGain);
+                    cracklePopSource.start();
+                }
+
                 mixGain.connect(offlineCtx.destination);
                 source.start();
 
                 processedBuffer = await offlineCtx.startRendering();
 
                 playProcessedBtn.disabled = false;
+                skipBackBtn.disabled = false;
+                skipForwardBtn.disabled = false;
                 downloadBtn.disabled = false;
+                
+                drawWaveform(processedBuffer);
+                durationDisplay.textContent = formatTime(processedBuffer.duration);
+
+                if (wasPlayingProcessed) {
+                    stopPlayback();
+                    togglePlayback('processed', pausedAt); // Resume from where we were
+                }
             } catch (error) {
                 console.error('Error processing audio:', error);
             } finally {
                 processing.classList.remove('visible');
             }
+        }
+
+        function drawWaveform(buffer) {
+            const width = waveformCanvas.width = waveformCanvas.offsetWidth || 800;
+            const height = waveformCanvas.height = waveformCanvas.offsetHeight || 120;
+            const ctx = waveformCanvas.getContext('2d');
+            const data = buffer.getChannelData(0);
+            const step = Math.ceil(data.length / width);
+            const amp = height / 2;
+
+            if (step === 0) return;
+
+            ctx.fillStyle = '#2d2418';
+            ctx.fillRect(0, 0, width, height);
+            ctx.strokeStyle = '#c4956a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, amp);
+
+            for (let i = 0; i < width; i++) {
+                let min = 1.0;
+                let max = -1.0;
+                for (let j = 0; j < step; j++) {
+                    const idx = (i * step) + j;
+                    if (idx >= data.length) break;
+                    const datum = data[idx];
+                    if (datum < min) min = datum;
+                    if (datum > max) max = datum;
+                }
+                ctx.lineTo(i, (1 + min) * amp);
+                ctx.lineTo(i, (1 + max) * amp);
+            }
+
+            ctx.stroke();
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
         function makeDistortionCurve(amount) {
@@ -774,7 +967,6 @@
 
         function createNoiseBuffer(ctx, length, amount, preset) {
             const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
-            const era = parseInt(currentEra);
 
             for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
                 const data = buffer.getChannelData(channel);
@@ -788,46 +980,202 @@
                     lastValue = lastValue * 0.99 + white * 0.01;
                     const pink = lastValue * 10;
 
-                    // Blend based on era (older = more crackle)
-                    const crackleChance = era < 1940 ? 0.0005 * amount : 0.0001 * amount;
-                    const crackle = Math.random() < crackleChance ? (Math.random() - 0.5) * 2 : 0;
+                    // Mix noise types (hiss only, crackle is separate now)
+                    data[i] = (white * 0.3 + pink * 0.7) * amount;
+                }
+            }
+            return buffer;
+        }
 
-                    // Mix noise types
-                    data[i] = (white * 0.3 + pink * 0.7) * amount + crackle;
+        function createCracklePopBuffer(ctx, length, crackleAmount, popAmount, preset) {
+            const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
+            const era = parseInt(currentEra);
+            const sampleRate = ctx.sampleRate;
+
+            // Pre-generate crackle and pop events
+            const crackleEvents = [];
+            const popEvents = [];
+
+            // Generate crackle events
+            if (crackleAmount > 0) {
+                const baseCrackleChance = era < 1940 ? 0.001 : era < 1960 ? 0.0005 : 0.0002;
+                const crackleChance = baseCrackleChance * crackleAmount;
+                const expectedCrackles = length * crackleChance;
+
+                for (let i = 0; i < expectedCrackles * 1.5; i++) {
+                    const position = Math.floor(Math.random() * length);
+                    const burstLength = Math.floor(sampleRate * (0.001 + Math.random() * 0.01)); // 1-11ms
+                    if (position + burstLength < length) {
+                        crackleEvents.push({ start: position, length: burstLength });
+                    }
+                }
+            }
+
+            // Generate pop events
+            if (popAmount > 0) {
+                const basePopChance = era < 1950 ? 0.0003 : era < 1970 ? 0.0001 : 0.00005;
+                const popChance = basePopChance * popAmount;
+                const expectedPops = length * popChance;
+
+                for (let i = 0; i < expectedPops * 1.5; i++) {
+                    const position = Math.floor(Math.random() * length);
+                    const popLength = Math.floor(sampleRate * (0.005 + Math.random() * 0.02)); // 5-25ms
+                    if (position + popLength < length) {
+                        popEvents.push({ start: position, length: popLength });
+                    }
+                }
+            }
+
+            for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+                const data = buffer.getChannelData(channel);
+
+                for (let i = 0; i < length; i++) {
+                    let crackle = 0;
+                    let pop = 0;
+
+                    // Apply crackle events
+                    for (const event of crackleEvents) {
+                        if (i >= event.start && i < event.start + event.length) {
+                            const t = (i - event.start) / event.length;
+                            // Sharp attack, exponential decay
+                            const amplitude = (1 - t) * (1 - t) * Math.exp(-t * 5);
+                            const noise = (Math.random() * 2 - 1) * 0.8;
+                            crackle += noise * amplitude * crackleAmount;
+                        }
+                    }
+
+                    // Apply pop events
+                    for (const event of popEvents) {
+                        if (i >= event.start && i < event.start + event.length) {
+                            const t = (i - event.start) / event.length;
+                            // Quick attack, slower decay
+                            const amplitude = Math.exp(-t * 3) * (1 - t * 0.5);
+                            // Low frequency content (simulated with filtered noise)
+                            const lowFreqNoise = (Math.random() * 2 - 1) * 0.6;
+                            pop += lowFreqNoise * amplitude * popAmount;
+                        }
+                    }
+
+                    data[i] = crackle + pop;
                 }
             }
             return buffer;
         }
 
         // Playback controls
-        playOriginalBtn.addEventListener('click', () => togglePlayback('original'));
         playProcessedBtn.addEventListener('click', () => togglePlayback('processed'));
+        
+        skipBackBtn.addEventListener('click', () => {
+            if (!processedBuffer) return;
+            const newPos = Math.max(0, getCurrentTime() - 10);
+            seekTo(newPos);
+        });
 
-        function togglePlayback(type) {
-            initAudioContext();
+        skipForwardBtn.addEventListener('click', () => {
+            if (!processedBuffer) return;
+            const newPos = Math.min(processedBuffer.duration, getCurrentTime() + 10);
+            seekTo(newPos);
+        });
 
+        waveformContainer.addEventListener('click', (e) => {
+            if (!processedBuffer) return;
+            const rect = waveformContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percent = x / rect.width;
+            const newPos = percent * processedBuffer.duration;
+            seekTo(newPos);
+        });
+
+        function getCurrentTime() {
+            if (currentPlayingType && currentSource && isPlaying) {
+                return pausedAt + (audioContext.currentTime - playStartTime);
+            }
+            return pausedAt;
+        }
+
+        function seekTo(seconds) {
+            const wasPlaying = isPlaying;
+            stopPlayback();
+            pausedAt = seconds;
+            updateProgress();
+            if (wasPlaying) {
+                togglePlayback('processed', seconds);
+            }
+        }
+
+        function updateProgress() {
+            const time = getCurrentTime();
+            const duration = processedBuffer ? processedBuffer.duration : 0;
+            const percent = duration > 0 ? (time / duration) * 100 : 0;
+            
+            progressOverlay.style.width = `${percent}%`;
+            currentTimeDisplay.textContent = formatTime(time);
+
+            if (time >= duration && isPlaying) {
+                stopPlayback();
+            }
+        }
+
+        function stopPlayback() {
             if (currentSource) {
-                currentSource.stop();
+                try {
+                    currentSource.stop();
+                } catch (e) {}
                 currentSource = null;
-                playOriginalBtn.textContent = 'Play Original';
-                playProcessedBtn.textContent = 'Play Processed';
+            }
+            
+            if (playbackInterval) {
+                clearInterval(playbackInterval);
+                playbackInterval = null;
             }
 
-            const buffer = type === 'original' ? originalBuffer : processedBuffer;
+            if (isPlaying) {
+                pausedAt += (audioContext.currentTime - playStartTime);
+            }
+            
+            isPlaying = false;
+            currentPlayingType = null;
+            playProcessedBtn.innerHTML = '&#9658;'; // Play icon
+        }
+
+        function togglePlayback(type, startOffset = pausedAt) {
+            initAudioContext();
+
+            if (isPlaying && currentPlayingType === type) {
+                stopPlayback();
+                return;
+            }
+
+            stopPlayback();
+
+            const buffer = processedBuffer;
             if (!buffer) return;
+
+            if (startOffset >= buffer.duration) {
+                startOffset = 0;
+            }
 
             currentSource = audioContext.createBufferSource();
             currentSource.buffer = buffer;
             currentSource.connect(audioContext.destination);
-            currentSource.start();
+            
+            playStartTime = audioContext.currentTime;
+            pausedAt = startOffset;
+            
+            currentSource.start(0, startOffset);
+            isPlaying = true;
+            currentPlayingType = type;
 
-            const btn = type === 'original' ? playOriginalBtn : playProcessedBtn;
-            btn.textContent = 'Stop';
+            playProcessedBtn.innerHTML = '&#10074;&#10074;'; // Pause icon
+
+            playbackInterval = setInterval(updateProgress, 100);
 
             currentSource.onended = () => {
-                currentSource = null;
-                playOriginalBtn.textContent = 'Play Original';
-                playProcessedBtn.textContent = 'Play Processed';
+                if (isPlaying) {
+                    stopPlayback();
+                    pausedAt = 0;
+                    updateProgress();
+                }
             };
         }
 
@@ -840,9 +1188,8 @@
             if (format === 'wav') {
                 downloadWav();
             } else {
-                // For MP3, we'll use WAV as fallback since MP3 encoding requires external library
-                downloadWav();
-                alert('Note: MP3 encoding requires external libraries. Downloading as WAV instead.');
+                // MP3 encoding using lamejs
+                await downloadMp3();
             }
         });
 
@@ -855,6 +1202,117 @@
             a.download = `processed_${currentEra}_audio.wav`;
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        async function downloadMp3() {
+            // Show processing indicator
+            processing.classList.add('visible');
+            processing.textContent = 'Encoding MP3...';
+            downloadBtn.disabled = true;
+
+            try {
+                // Check if lamejs is available
+                if (typeof lamejs === 'undefined') {
+                    // Load lamejs from CDN if not available
+                    processing.textContent = 'Loading MP3 encoder...';
+                    await loadLamejs();
+                }
+
+                processing.textContent = 'Encoding MP3...';
+
+                // Ensure we have at least 1 channel
+                const numChannels = Math.max(1, processedBuffer.numberOfChannels);
+                // Use standard MP3 sample rate (clamp to supported rates)
+                const sampleRate = Math.min(48000, Math.max(8000, processedBuffer.sampleRate));
+
+                const mp3encoder = new lamejs.Mp3Encoder(
+                    numChannels,
+                    sampleRate,
+                    128 // bitrate
+                );
+
+                const samples = [];
+                for (let i = 0; i < processedBuffer.numberOfChannels; i++) {
+                    samples.push(processedBuffer.getChannelData(i));
+                }
+
+                const sampleBlockSize = 1152;
+                const mp3Data = [];
+
+                // Encode in chunks for better performance
+                const totalSamples = processedBuffer.length;
+                for (let i = 0; i < totalSamples; i += sampleBlockSize) {
+                    const left = [];
+                    const right = [];
+                    const chunkSize = Math.min(sampleBlockSize, totalSamples - i);
+
+                    for (let j = 0; j < chunkSize; j++) {
+                        const sampleIdx = i + j;
+                        // Convert float to 16-bit PCM
+                        const leftSample = Math.max(-1, Math.min(1, samples[0][sampleIdx]));
+                        const leftInt = leftSample < 0 ? leftSample * 0x8000 : leftSample * 0x7FFF;
+                        left.push(leftInt);
+
+                        if (numChannels === 2 && processedBuffer.numberOfChannels >= 2) {
+                            const rightSample = Math.max(-1, Math.min(1, samples[1][sampleIdx]));
+                            const rightInt = rightSample < 0 ? rightSample * 0x8000 : rightSample * 0x7FFF;
+                            right.push(rightInt);
+                        } else {
+                            // Mono: duplicate left channel
+                            right.push(leftInt);
+                        }
+                    }
+
+                    const mp3buf = mp3encoder.encodeBuffer(left, right);
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(mp3buf);
+                    }
+                }
+
+                // Flush remaining data
+                const mp3buf = mp3encoder.flush();
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                }
+
+                // Create blob and download
+                const blob = new Blob(mp3Data, { type: 'audio/mp3' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `processed_${currentEra}_audio.mp3`;
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('MP3 encoding error:', error);
+                alert('MP3 encoding failed. Downloading as WAV instead.');
+                downloadWav();
+            } finally {
+                processing.classList.remove('visible');
+                processing.textContent = 'Processing audio...';
+                downloadBtn.disabled = false;
+            }
+        }
+
+        function loadLamejs() {
+            return new Promise((resolve, reject) => {
+                if (typeof lamejs !== 'undefined') {
+                    resolve();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';
+                script.onload = () => {
+                    if (typeof lamejs !== 'undefined') {
+                        resolve();
+                    } else {
+                        reject(new Error('Failed to load lamejs'));
+                    }
+                };
+                script.onerror = () => reject(new Error('Failed to load lamejs script'));
+                document.head.appendChild(script);
+            });
         }
 
         function audioBufferToWav(buffer) {

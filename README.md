@@ -6,23 +6,23 @@ A single-page HTML application that transforms audio files to sound like they're
 
 - **8 Era Presets**: Transform audio to sound like it's from the 1910s through 1980s
 - **Real-time Processing**: Uses Web Audio API for instant audio processing
-- **Adjustable Parameters**: Fine-tune compression, hiss/noise, filtering, and mono blend
+- **Adjustable Parameters**: Fine-tune compression, hiss/noise, filtering, mono blend, radio crackle, and record pops
 - **Drag & Drop Upload**: Easy file upload with drag-and-drop support
-- **Audio Playback**: Compare original and processed audio in real-time
-- **Download**: Export processed audio as WAV
+- **Playback Widget**: Interactive waveform visualization with play/pause, seek, and 10s skip forward/back
+- **Download**: Export processed audio as WAV or MP3 (MP3 powered by lamejs)
 
 ## Era Presets
 
-| Era | Character | Bandpass | Compression | Noise |
-|-----|-----------|----------|-------------|-------|
-| **1910s** | Spark gap era, extremely primitive | 500-2500 Hz | Very Heavy | Very High |
-| **1920s** | Crystal radio, AM broadcast beginnings | 400-2800 Hz | Very Heavy | High |
-| **1930s** | AM radio, lo-fi, scratchy | 300-3000 Hz | Heavy | High |
-| **1940s** | War-era radio, slightly clearer | 250-3500 Hz | Heavy | Medium-High |
-| **1950s** | Early rock & roll, jukeboxes | 200-5000 Hz | Medium-Heavy | Medium |
-| **1960s** | FM emergence, cleaner but warm | 150-8000 Hz | Medium | Low-Medium |
-| **1970s** | Near hi-fi, slight warmth/saturation | 100-10000 Hz | Light-Medium | Low |
-| **1980s** | FM dominance, clean, modern warmth | 80-12000 Hz | Light | Very Low |
+| Era | Character | Bandpass | Compression | Noise | Crackle/Pop |
+|-----|-----------|----------|-------------|-------|-------------|
+| **1910s** | Spark gap era, extremely primitive | 500-2500 Hz | Very Heavy | Very High | Heavy |
+| **1920s** | Crystal radio, AM broadcast beginnings | 400-2800 Hz | Very Heavy | High | High |
+| **1930s** | AM radio, lo-fi, scratchy | 300-3000 Hz | Heavy | High | High |
+| **1940s** | War-era radio, slightly clearer | 250-3500 Hz | Heavy | Medium-High | Medium |
+| **1950s** | Early rock & roll, jukeboxes | 200-5000 Hz | Medium-Heavy | Medium | Medium |
+| **1960s** | FM emergence, cleaner but warm | 150-8000 Hz | Medium | Low-Medium | Low-Medium |
+| **1970s** | Near hi-fi, slight warmth/saturation | 100-10000 Hz | Light-Medium | Low | Low |
+| **1980s** | FM dominance, clean, modern warmth | 80-12000 Hz | Light | Very Low | Very Low |
 
 ## Usage
 
@@ -34,13 +34,15 @@ A single-page HTML application that transforms audio files to sound like they're
    - **Record Hiss/Noise**: Amount of static and crackle
    - **Filtering**: Bandpass filter intensity (narrower = more vintage)
    - **Mono Blend**: Stereo to mono conversion amount
+   - **Radio Crackle**: Irregular radio static bursts
+   - **Record Pop**: Vinyl-style pops and clicks
 5. Click "Play Processed" to preview the effect
-6. Click "Download" to save the processed audio
+6. Click "Download" to save the processed audio (WAV or MP3)
 
 ## Audio Processing Chain
 
 ```
-Input -> Mono Conversion -> Bandpass Filter -> Bit Crusher -> Compressor -> Noise Mix -> Output
+Input -> Mono Conversion -> Bandpass Filter -> Bit Crusher -> Compressor -> Noise Mix -> Crackle/Pop Mix -> Output
 ```
 
 ### Processing Details
