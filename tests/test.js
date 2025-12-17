@@ -1,5 +1,5 @@
 /**
- * Era Radio Filter - Test Suite
+ * Retro Audio Processor - Test Suite
  * Run with: node tests/test.js
  */
 
@@ -187,7 +187,7 @@ function calculateCompressorSettings(compAmount) {
 // Run tests
 const runner = new TestRunner();
 
-console.log(`${colors.bold}Era Radio Filter - Test Suite${colors.reset}`);
+console.log(`${colors.bold}Retro Audio Processor - Test Suite${colors.reset}`);
 console.log('='.repeat(40));
 
 // Era Presets Tests
